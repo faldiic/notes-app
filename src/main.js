@@ -116,18 +116,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    document.addEventListener("edit-note", async (event) => {
-        const { id, newTitle, newBody } = event.detail;
-        try {
-            const updatedNote = await updateNote(id,{ title: newTitle, body: newBody });
-            if (updatedNote) {
-                await loadNotes();
-            }
-        } catch (error){
-            console.error("Terjadi kesalahan saat memperharui catatan: ", error);
-        }
-    });
-
     document.addEventListener("toggle-archive", async () => {
         const notes = await fetchArchivedNotes();
         noteGrid.setNotes(notes);
