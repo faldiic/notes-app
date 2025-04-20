@@ -13,7 +13,6 @@ import {
     deleteNote,
     archiveNote,
     unarchiveNote,
-    updateNote,
     fetchArchivedNotes,
  } from "./components/note-api.js";
 
@@ -79,6 +78,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const noteTitle = document.getElementById("note-title");
     const noteBody = document.getElementById("note-body");
     const addNoteBtn = document.getElementById("add-note-btn");
+    
+    // Cek apakah elemen-elemen yang
+    if (!noteTitle || !noteBody || !addNoteBtn) {
+        console.error("Error: Elemen tidak ditemukan");
+        return;
+    }
 
     await customElements.whenDefined("note-grid");
     const noteGrid = document.querySelector("note-grid");   
@@ -88,10 +93,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
+    
     const loadNotes = async () => {
-        const notes = await fetchNotes();
-        console.log("Catatan berhasil dimuat:", notes);
-        noteGrid.setNotes(notes);
+        try {// Cek apakah elemen note-grid sudah didefinisikan
+            const notes = await fetchNotes();
+            console.log("Catatan berhasil dimuat:", notes);
+            noteGrid.setNotes(notes);
+        } catch (error) {// tea
+            console.error("Error saat memuat catatan:", error);
+        }
     };
 
     addNoteBtn.addEventListener("click", async () => {
@@ -99,41 +109,61 @@ document.addEventListener("DOMContentLoaded", async () => {
         const body = noteBody.value.trim();
 
         if (title && body) {
-            const newNote = await addNote(title, body);
-            if (newNote) {
-                noteTitle.value = "";
-                noteBody.value = "";
-                await loadNotes();
+            try {
+                const newNote = await addNote(title, body);
+                if (newNote) {
+                    noteTitle.value = "";
+                    noteBody.value = "";
+                    await loadNotes();
+                }
+            } catch (error) {
+                console.error("Error saat menambahkan catatan:", error);
             }
         }
     });
 
     document.addEventListener("delete-note", async (event) => {
         const { id } = event.detail;
-        const success = await deleteNote(id);
-        if (success) {
-            await loadNotes();
+        try {
+            const success = await deleteNote(id);
+            if (success) {
+                await loadNotes();
+            }
+        } catch (error) {
+            console.error("Error saat menghapus catatan:", error);
         }
     });
 
     document.addEventListener("toggle-archive", async () => {
-        const notes = await fetchArchivedNotes();
-        noteGrid.setNotes(notes);
-    })
+        try {
+            const notes = await fetchArchivedNotes();
+            noteGrid.setNotes(notes);
+        } catch (error) {
+            console.error("Error saat memuat catatan arsip:", error);
+        }
+    });
 
     document.addEventListener("archive-note", async (event) => {
         const { id } = event.detail;
-        const success = await archiveNote(id);
-        if (success) {
-            await loadNotes();
+        try {
+            const success = await archiveNote(id);
+            if (success) {
+                await loadNotes();
+            }
+        } catch (error) {
+            console.error("Error saat mengarsipkan catatan:". error);
         }
     });
     
     document.addEventListener("unarchive-note", async (event) => {
         const { id } = event.detail;
-        const success = await unarchiveNote(id);
-        if (success) {
-            await loadNotes();
+        try {
+            const success = await unarchiveNote(id);
+            if (success) {
+                await loadNotes();
+            }
+        } catch (error) {
+            console.error("Error saat membatalkan arsip catatan:", error);
         }
     });
 
